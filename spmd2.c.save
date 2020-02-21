@@ -1,0 +1,17 @@
+#include <stdio.h>
+ #include <omp.h>
+ #include <stdlib.h
+ int main(int argc, char** argv) {
+ int id, numThreads;
+ printf("\n");
+ if (argc > 1) {8. omp_set_num_threads( atoi(argv[1]) );
+9. }
+10. #pragma omp parallel
+11. {
+12. id = omp_get_thread_num();
+13. numThreads = omp_get_num_threads();
+14. printf("Hello from thread %d of %d\n", id, numThreads);
+15. }
+16. printf("\n");
+ return 0;
+ }
