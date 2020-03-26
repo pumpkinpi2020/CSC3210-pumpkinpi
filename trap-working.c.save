@@ -1,0 +1,48 @@
+2 #include <math.h>
+3 #include <stdio.h> // printf()
+4 #include <stdlib.h> // atoi()
+5 #include <omp.h> // OpenMP
+6
+7
+8 /* Demo program for OpenMP: computes trapezoidal approximation to an integral*/
+9
+10 const double pi = 3.141592653589793238462643383079;
+11
+12 int main(int argc, char** argv) {
+13 /* Variables */
+14 double a = 0.0, b = pi; /* limits of integration */;
+15 int n = 1048576; /* number of subdivisions = 2^20 */
+16 double h = (b - a) / n; /* width of subdivision */
+17 double integral; /* accumulates answer */
+18 int threadcnt = 1;
+19
+20 double f(double x);
+21
+22 /* parse command-line arg for number of threads */
+23 if (argc > 1) {
+24 threadcnt = atoi(argv[1]);
+25 }
+26 #ifdef _OPENMP
+ omp_set_num_threads( threadcnt );
+ printf("OMP defined, threadct = %d\n", threadcnt);
+ #else
+ printf("OMP not defined");
+ #endif
+
+ integral = (f(a) + f(b))/2.0;
+ int i;
+
+ #pragma omp parallel for \
+ private(i) shared (a, n, h) reduction(+: integral)
+ for(i = 1; i < n; i++) {
+ integral += f(a+i*h);
+ }
+
+ integral = integral * h;
+ printf("With %d trapezoids, our estimate of the integral from \n", n);
+ printf("%f to %f is %f\n", a,b,integral);
+ }
+
+ double f(double x) {
+ return sin(x);
+ }
